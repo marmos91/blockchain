@@ -8,7 +8,15 @@ A simple Javascript implementation of a blockchain written in js for teaching pu
 npm install
 ```
 
+## Generate wallet keys
+
+```bash
+npm run signup
+```
+
 ## Run
+
+Before starting copy the private key generated with the command above inside `main.js`
 
 ```bash
 npm start
