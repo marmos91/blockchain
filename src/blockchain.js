@@ -1,4 +1,6 @@
 const {SHA256} = require('crypto-js');
+const EC = require('elliptic').ec;
+const ec = new EC('secp256k1');
 
 class Transaction
 {
@@ -19,9 +21,27 @@ class Transaction
     {
         if (this.from === null) 
             return true;
-
-        return true;
+        
+        if (!this.signature || this.signature.length === 0)
+            throw new Error('No signature in this transaction');
+          
+        const public_key = ec.keyFromPublic(this.from, 'hex');
+        return public_key.verify(this.calculate_hash(), this.signature);
     }
+
+    sign(key) 
+    {
+        if (key.getPublic('hex') !== this.from)
+        {
+            console.log(key.getPublic('hex'), this.from);
+            throw new Error('You cannot sign transactions for other wallets!');
+        }
+    
+        const hash = this.calculate_hash();
+        const signature = key.sign(hash, 'base64');
+    
+        this.signature = signature.toDER('hex');
+      }
 }
 
 class Block
@@ -149,6 +169,22 @@ class Blockchain
         }
 
         return true;
+    }
+
+    get_transactions_for_wallet(address) 
+    {
+        const transactions = [];
+    
+        for(const block of this.chain) 
+        {
+            for(const transaction of block.transactions) 
+            {
+                if(transaction.from === address || transaction.to === address)
+                    transactions.push(transaction);
+            }
+        }
+    
+        return transactions;
     }
 
     print()
