@@ -7,13 +7,25 @@ class Block
         this.timestamp = timestamp;
         this.previous_hash = previous_hash;
         this.data = data;
+        this.nonce = 0;
         this.hash = this.calculate_hash();
     }
 
     calculate_hash()
     {
-        return SHA256(this.timestamp + this.previous_hash + JSON.stringify(this.data)).toString();
+        return SHA256(this.timestamp + this.previous_hash + JSON.stringify(this.data) + this.nonce).toString();
     }   
+
+    mine(difficulty)
+    {
+        while(this.hash.substring(0, difficulty) !== Array(difficulty + 1).join('0')) 
+        {
+            this.nonce++;
+            this.hash = this.calculate_hash();
+        }
+    
+        console.log('Block mined:', this.hash);
+    }
 }
 
 class Blockchain
@@ -21,6 +33,7 @@ class Blockchain
     constructor()
     {
         this.chain = [this.create_genesis_block()];
+        this.difficulty = 2;
     }
     
     create_genesis_block()
@@ -33,12 +46,12 @@ class Blockchain
         return this.chain[this.chain.length - 1];
     }
 
-    add_block(block)
+    add_block(new_block)
     {
-        block.previous_hash = this.get_last_block().hash;
-        block.hash = block.calculate_hash();
+        new_block.previous_hash = this.get_last_block().hash;
+        new_block.mine(this.difficulty);
 
-        this.chain.push(block);
+        this.chain.push(new_block);
     }
 
     is_valid() 
@@ -61,6 +74,11 @@ class Blockchain
         }
 
         return true;
+    }
+
+    print()
+    {
+        console.log(JSON.stringify(this, null, 4));
     }
 }
 
