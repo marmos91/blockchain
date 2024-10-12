@@ -19,6 +19,6 @@
     "homepage": "https://github.com/marmos91/blockchain#readme",
     "dependencies": {
         "crypto-js": "^4.2.0",
-        "elliptic": "^6.5.4"
+        "elliptic": "^6.5.6"
     }
 }
